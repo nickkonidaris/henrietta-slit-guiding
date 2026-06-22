@@ -22,7 +22,7 @@ from .montage import discover_frames
 HW = 21
 
 
-def find_stars(cfg: dict, run_dir: str | None = None) -> None:
+def find_stars(cfg: dict, run_dir: str | None = None, dry_run: bool = False) -> None:
     boxes = cfg["boxes"]
     target, comp = cfgmod.target_comp(boxes)
     y_lo = boxes[target]["y_lo"]
@@ -66,9 +66,31 @@ def find_stars(cfg: dict, run_dir: str | None = None) -> None:
     print(f"  box  {comp:<10s} comp    {bright_col:<8d}  {HW:<11d}  {y_lo:<4d}  {y_hi}")
     print("  # (target assumed fainter; verify against the field)")
 
-    # --- figure: how the peaks were found ---
     if run_dir is None:
         run_dir = os.getcwd()
+
+    # --- write the columns into config.txt (preserving role/half-width/Y) ---
+    def hw_of(b):
+        return (b["x_hi"] - b["x_lo"] - 1) // 2
+    updates = {
+        target: dict(role=boxes[target]["role"], x_center=faint_col,
+                     halfwidth=hw_of(boxes[target]),
+                     y_lo=boxes[target]["y_lo"], y_hi=boxes[target]["y_hi"]),
+        comp: dict(role=boxes[comp]["role"], x_center=bright_col,
+                   halfwidth=hw_of(boxes[comp]),
+                   y_lo=boxes[comp]["y_lo"], y_hi=boxes[comp]["y_hi"]),
+    }
+    cfg_path = os.path.join(run_dir, "config.txt")
+    if dry_run:
+        print("\n(--dry-run: config.txt NOT modified)")
+    elif os.path.exists(cfg_path):
+        for name, action in cfgmod.update_config_boxes(cfg_path, updates):
+            print(f"  config.txt: {action} {name} -> x_center={updates[name]['x_center']}")
+        print(f"  (backup -> {os.path.basename(cfg_path)}.bak)")
+    else:
+        print(f"\n(no config.txt at {cfg_path}; nothing written)")
+
+    # --- figure: how the peaks were found ---
     out = os.path.join(run_dir, "outputs")
     os.makedirs(out, exist_ok=True)
     cols = np.arange(len(x_prof_pos))

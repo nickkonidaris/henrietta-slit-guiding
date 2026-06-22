@@ -64,7 +64,8 @@ def _cmd_watch(args):
     from . import watch
     run_dir = _resolve_run_dir(args)
     _load_or_die(run_dir)  # validate config exists/parses now
-    watch.watch(run_dir, last_n=args.last_n, interval=args.interval)
+    watch.watch(run_dir, last_n=args.last_n, interval=args.interval,
+                open_browser=not args.no_open)
 
 
 def _cmd_keypress(args):
@@ -78,7 +79,7 @@ def _cmd_keypress(args):
 def _cmd_find_stars(args):
     from . import findstars
     run_dir = _resolve_run_dir(args)
-    findstars.find_stars(_load_or_die(run_dir), run_dir)
+    findstars.find_stars(_load_or_die(run_dir), run_dir, dry_run=args.dry_run)
 
 
 def _cmd_headers(args):
@@ -120,6 +121,8 @@ def build_parser():
     pw = sub.add_parser("watch", help="live loop")
     pw.add_argument("--last-n", type=int, default=30)
     pw.add_argument("--interval", type=float, default=5.0)
+    pw.add_argument("--no-open", action="store_true",
+                    help="don't auto-open live.html in the browser")
     pw.set_defaults(func=_cmd_watch)
 
     pk = sub.add_parser("keypress", help="drift -> TCS arrow presses")
@@ -131,7 +134,10 @@ def build_parser():
     pk.add_argument("--pa", type=float, default=None, help="default: config pa")
     pk.set_defaults(func=_cmd_keypress)
 
-    sub.add_parser("find-stars", help="suggest box columns").set_defaults(func=_cmd_find_stars)
+    pf = sub.add_parser("find-stars", help="find box columns and write them to config.txt")
+    pf.add_argument("--dry-run", action="store_true",
+                    help="print only; don't modify config.txt")
+    pf.set_defaults(func=_cmd_find_stars)
     sub.add_parser("headers", help="dump frame headers").set_defaults(func=_cmd_headers)
     sub.add_parser("overlay", help="write box_overlay.png").set_defaults(func=_cmd_overlay)
     sub.add_parser("path", help="keypress-trail plot").set_defaults(func=_cmd_path)

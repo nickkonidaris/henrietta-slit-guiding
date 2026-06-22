@@ -17,6 +17,7 @@ from __future__ import annotations
 import datetime as _dt
 import os
 import re
+import shutil
 from importlib import resources
 
 # --- analysis defaults (used when config.txt is missing/unparseable) ---
@@ -164,6 +165,42 @@ def target_comp(boxes: dict) -> tuple:
     """(target_name, comp_name) — assumes a validated config (one each)."""
     t, c = roles_of(boxes)
     return t[0], c[0]
+
+
+def update_config_boxes(path: str, updates: dict) -> list:
+    """Update (or append) `box` lines in config.txt for the given stars.
+
+    `updates` maps name -> dict(role, x_center, halfwidth, y_lo, y_hi).  An
+    existing `box <name> ...` line has its fields rewritten in place; a name
+    with no line is appended.  A backup is written to `path + '.bak'` first.
+    Returns [(name, 'updated'|'added'), ...].
+    """
+    def box_line(name, u):
+        return (f"box  {name}  {u['role']}  {u['x_center']}  {u['halfwidth']}  "
+                f"{u['y_lo']}  {u['y_hi']}   # x_center set by find-stars\n")
+
+    with open(path) as fh:
+        lines = fh.readlines()
+    remaining = dict(updates)
+    out, report = [], []
+    for line in lines:
+        parts = line.split("#", 1)[0].split()
+        if len(parts) >= 2 and parts[0].lower() == "box" and parts[1] in remaining:
+            name = parts[1]
+            out.append(box_line(name, remaining.pop(name)))
+            report.append((name, "updated"))
+        else:
+            out.append(line)
+    for name, u in remaining.items():
+        if out and not out[-1].endswith("\n"):
+            out[-1] += "\n"
+        out.append(box_line(name, u))
+        report.append((name, "added"))
+
+    shutil.copyfile(path, path + ".bak")
+    with open(path, "w") as fh:
+        fh.writelines(out)
+    return report
 
 
 def seeded_config_text(target: str, comp: str) -> str:

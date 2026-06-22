@@ -28,6 +28,17 @@ def test_ensure_live_html():
     assert "dx_dy_vs_frame.png" in html and "box_overlay.png" in html
 
 
+def test_open_in_browser_no_opener():
+    # on an unknown platform there is no opener -> returns False, no side effect
+    import sys
+    orig = sys.platform
+    sys.platform = "nosuchos"
+    try:
+        assert watch.open_in_browser("/tmp/whatever.html") is False
+    finally:
+        sys.platform = orig
+
+
 if __name__ == "__main__":
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     fails = 0

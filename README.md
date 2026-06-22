@@ -31,12 +31,14 @@ henrietta-slit-guiding init HD136352 nu01Lup
 cd ~/guiding/2026_06_21-HD136352-nu01Lup
 #  edit config.txt: source, start_frame, filter, pa
 henrietta-slit-guiding headers       # confirm OBJECT/FILTER, pick start_frame
-henrietta-slit-guiding find-stars    # prints box columns -> paste into config.txt
-henrietta-slit-guiding watch         # the live loop
+henrietta-slit-guiding find-stars    # finds the columns and writes them into config.txt
+henrietta-slit-guiding watch         # the live loop (auto-opens live.html in your browser)
 ```
 
-Then `open outputs/live.html` (a browser page that auto-refreshes the plot —
-macOS Preview won't reload a background window). Log nudges in
+`watch` opens `outputs/live.html` for you (a browser page that auto-refreshes
+the plot — macOS Preview won't reload a background window); pass `--no-open` to
+skip that. `find-stars` writes the box columns straight into `config.txt`
+(backing it up to `config.txt.bak`); pass `--dry-run` to only print them. Log nudges in
 `motion_events.txt`; the plot redraws on each new frame / events edit / config
 edit. `watch` also prints a status block each redraw:
 
@@ -51,6 +53,7 @@ edit. `watch` also prints a status block each redraw:
 
 ```sh
 henrietta-slit-guiding keypress              # drift -> arrow keys (or --dx .. --dy ..)
+henrietta-slit-guiding find-stars            # write box columns into config.txt (--dry-run to preview)
 henrietta-slit-guiding overlay               # (re)write outputs/box_overlay.png
 henrietta-slit-guiding path                  # keypress-trail plot
 henrietta-slit-guiding rate                  # commanded-motion histogram

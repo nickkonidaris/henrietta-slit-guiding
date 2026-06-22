@@ -63,6 +63,27 @@ LIVE_HTML_DOC = """<!doctype html>
 """
 
 
+def open_in_browser(path):
+    """Best-effort: pop the page up in the default browser (open / xdg-open).
+    Never raises; returns True if an opener was launched."""
+    import shutil
+    import subprocess
+    if sys.platform == "darwin":
+        opener = "open"
+    elif sys.platform.startswith("linux"):
+        opener = shutil.which("xdg-open")
+    else:
+        opener = None
+    if not opener:
+        return False
+    try:
+        subprocess.Popen([opener, path],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return True
+    except Exception:
+        return False
+
+
 def ensure_live_html(out_dir):
     try:
         os.makedirs(out_dir, exist_ok=True)
@@ -134,7 +155,7 @@ def print_status(summary, cfg):
         print(f"  ==> PRESS:  {rec['text']}")
 
 
-def watch(run_dir, *, last_n=30, interval=5.0):
+def watch(run_dir, *, last_n=30, interval=5.0, open_browser=True):
     # Line-buffer stdout so the status readout streams even when piped/redirected
     # (e.g. `watch | tee night.log`), not just when attached to a terminal.
     try:
@@ -145,12 +166,16 @@ def watch(run_dir, *, last_n=30, interval=5.0):
     events_file = os.path.join(run_dir, "motion_events.txt")
     out = os.path.join(run_dir, "outputs")
     ensure_live_html(out)
+    live = os.path.join(out, LIVE_HTML_NAME)
     cfg0 = cfgmod.load_config(config_path)
     print(f"watch: {run_dir}")
     print(f"       source: {cfg0['source']}")
     print(f"       poll every {interval:g}s, --last-n {last_n}, PA={cfg0['pa']}")
-    print(f"       VIEW (auto-updating):  open {os.path.join(out, LIVE_HTML_NAME)}")
+    print(f"       VIEW (auto-updating):  open {live}")
     print(f"       (macOS Preview won't auto-refresh — use the browser page.)")
+    if open_browser:
+        opened = open_in_browser(live)
+        print(f"       {'opened it in your browser.' if opened else 'auto-open unavailable; open it manually.'}")
     print(f"       Ctrl-C to stop.\n")
     if not os.path.isdir(cfg0["source"]):
         print(f"WARNING: source not found: {cfg0['source']} — set `source` in "

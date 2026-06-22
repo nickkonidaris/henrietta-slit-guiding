@@ -80,6 +80,33 @@ def test_seeded_config_roundtrips():
     os.unlink(p)
 
 
+def test_update_config_boxes_update_preserves_other_lines():
+    p = _tmp("source /data/foo\n# a comment\n"
+             "box StarA target 100 20 600 800\nbox StarB comp 1900 20 600 800\n")
+    rep = dict(c.update_config_boxes(p, {
+        "StarA": dict(role="target", x_center=111, halfwidth=20, y_lo=600, y_hi=800),
+        "StarB": dict(role="comp", x_center=1950, halfwidth=20, y_lo=600, y_hi=800),
+    }))
+    assert rep == {"StarA": "updated", "StarB": "updated"}
+    assert os.path.exists(p + ".bak")
+    cfg = c.load_config(p)
+    assert cfg["source"] == "/data/foo"                 # untouched line preserved
+    assert cfg["boxes"]["StarA"]["x_lo"] == 111 - 20    # updated center
+    assert cfg["boxes"]["StarB"]["x_lo"] == 1950 - 20
+    os.unlink(p); os.unlink(p + ".bak")
+
+
+def test_update_config_boxes_appends_missing():
+    p = _tmp("source /data\nbox StarA target 100 20 600 800\n")   # missing comp
+    rep = dict(c.update_config_boxes(p, {
+        "StarB": dict(role="comp", x_center=1950, halfwidth=20, y_lo=600, y_hi=800)}))
+    assert rep == {"StarB": "added"}
+    cfg = c.load_config(p)                               # now valid: 1 target + 1 comp
+    t, comp = c.target_comp(cfg["boxes"])
+    assert t == "StarA" and comp == "StarB"
+    os.unlink(p); os.unlink(p + ".bak")
+
+
 if __name__ == "__main__":
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     fails = 0
