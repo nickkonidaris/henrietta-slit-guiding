@@ -31,7 +31,12 @@ F1 = 9999
 SEARCH = 8
 SIGMA_CLIP_N = 5.0
 TOPHAT = 3
-GAUSS_GUESS_ROW = 40
+# Box-row where the Y-fit looks for the absorption dip (within ±HALF_WINDOW).
+# The feature sits near box-row 23-27 for this geometry (the line lands a few
+# rows lower for the companion than the target due to the isowavelength tilt
+# across the detector), so 30 -> window [15,45] keeps BOTH dips inside with
+# margin.  (Was 40 -> [25,55], which clipped the companion's dip at the edge.)
+GAUSS_GUESS_ROW = 30
 GAUSS_HALF_WINDOW = 15
 SIGMA_MAX = 8.0
 HP_PRE_FIT = 41
