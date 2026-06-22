@@ -77,7 +77,8 @@ def _cmd_keypress(args):
 
 def _cmd_find_stars(args):
     from . import findstars
-    findstars.find_stars(_load_or_die(_resolve_run_dir(args)))
+    run_dir = _resolve_run_dir(args)
+    findstars.find_stars(_load_or_die(run_dir), run_dir)
 
 
 def _cmd_headers(args):

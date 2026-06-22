@@ -31,7 +31,7 @@ DEFAULTS = dict(
     object="",
     filter="",
     pa=0.0,
-    pixscale=0.776,
+    pixscale=0.163,   # guider plate scale, arcsec/pix
 )
 
 
@@ -174,13 +174,13 @@ def seeded_config_text(target: str, comp: str) -> str:
 # Fill in the EDIT fields, then `find-stars` for the box columns, then `watch`.
 # Edit + save while watching and it redraws automatically.
 
-source       /path/to/frames     # EDIT: directory holding hen####.fits (spaces ok)
+source       /Users/henrietta/images/   # EDIT: directory holding hen####.fits
 bpm          bundled             # 'bundled' = packaged mask, or a path
 start_frame  1                   # EDIT: first frame number of the sequence
 object       {target}            # substring matched in the OBJECT header
 filter                           # EDIT: required FILTER (e.g. R-J); blank = any
 pa           0.0                 # EDIT: instrument PA in deg (ROTANGLE) — keypress needs it
-pixscale     0.776               # guider arcsec/pix, for the path/rate plots
+pixscale     0.163               # guider arcsec/pix, for the path/rate plots
 
 # Extraction boxes — exactly one 'target' and one 'comp'.
 #   box  <name>  <role>  <x_center>  <x_halfwidth>  <y_lo>  <y_hi>

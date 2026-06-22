@@ -62,13 +62,13 @@ The guiding root is `~/guiding` (override with `$HENRIETTA_GUIDING_DIR`).
 ## config.txt
 
 ```
-source       /Volumes/Extreme Pro/HenJune2026   # dir of hen####.fits (spaces ok)
+source       /Users/henrietta/images/           # dir of hen####.fits
 bpm          bundled                             # packaged mask, or a path
 start_frame  83
 object       136352                              # substring required in OBJECT
 filter       R-J                                 # blank = any
 pa           9.336                               # instrument PA (ROTANGLE) deg
-pixscale     0.776                               # guider arcsec/pix
+pixscale     0.163                               # guider arcsec/pix
 # box <name> <role> <x_center> <x_halfwidth> <y_lo> <y_hi>  (one target, one comp)
 box HD136352 target 109  21 670 852
 box nu01Lup  comp    1943 21 670 852
