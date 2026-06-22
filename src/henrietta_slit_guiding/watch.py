@@ -16,6 +16,7 @@ import numpy as np
 from . import config as cfgmod
 from . import keypress
 from . import montage
+from .config import open_in_browser  # re-exported here for convenience/tests
 
 LIVE_HTML_NAME = "live.html"
 
@@ -61,27 +62,6 @@ LIVE_HTML_DOC = """<!doctype html>
 </body>
 </html>
 """
-
-
-def open_in_browser(path):
-    """Best-effort: pop the page up in the default browser (open / xdg-open).
-    Never raises; returns True if an opener was launched."""
-    import shutil
-    import subprocess
-    if sys.platform == "darwin":
-        opener = "open"
-    elif sys.platform.startswith("linux"):
-        opener = shutil.which("xdg-open")
-    else:
-        opener = None
-    if not opener:
-        return False
-    try:
-        subprocess.Popen([opener, path],
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        return True
-    except Exception:
-        return False
 
 
 def ensure_live_html(out_dir):

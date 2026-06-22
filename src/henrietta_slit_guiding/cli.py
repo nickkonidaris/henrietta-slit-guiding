@@ -79,7 +79,8 @@ def _cmd_keypress(args):
 def _cmd_find_stars(args):
     from . import findstars
     run_dir = _resolve_run_dir(args)
-    findstars.find_stars(_load_or_die(run_dir), run_dir, dry_run=args.dry_run)
+    findstars.find_stars(_load_or_die(run_dir), run_dir, dry_run=args.dry_run,
+                         no_open=args.no_open)
 
 
 def _cmd_headers(args):
@@ -137,6 +138,8 @@ def build_parser():
     pf = sub.add_parser("find-stars", help="find box columns and write them to config.txt")
     pf.add_argument("--dry-run", action="store_true",
                     help="print only; don't modify config.txt")
+    pf.add_argument("--no-open", action="store_true",
+                    help="don't open box_overlay.png after writing")
     pf.set_defaults(func=_cmd_find_stars)
     sub.add_parser("headers", help="dump frame headers").set_defaults(func=_cmd_headers)
     sub.add_parser("overlay", help="write box_overlay.png").set_defaults(func=_cmd_overlay)

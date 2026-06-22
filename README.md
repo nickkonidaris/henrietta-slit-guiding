@@ -38,7 +38,9 @@ henrietta-slit-guiding watch         # the live loop (auto-opens live.html in yo
 `watch` opens `outputs/live.html` for you (a browser page that auto-refreshes
 the plot — macOS Preview won't reload a background window); pass `--no-open` to
 skip that. `find-stars` writes the box columns straight into `config.txt`
-(backing it up to `config.txt.bak`); pass `--dry-run` to only print them. Log nudges in
+(backing it up to `config.txt.bak`), then redraws and **opens
+`box_overlay.png`** so you can check the target/comp assignment on the actual
+frame (`--no-open` to skip, `--dry-run` to only print). Log nudges in
 `motion_events.txt`; the plot redraws on each new frame / events edit / config
 edit. `watch` also prints a status block each redraw:
 
@@ -53,7 +55,7 @@ edit. `watch` also prints a status block each redraw:
 
 ```sh
 henrietta-slit-guiding keypress              # drift -> arrow keys (or --dx .. --dy ..)
-henrietta-slit-guiding find-stars            # write box columns into config.txt (--dry-run to preview)
+henrietta-slit-guiding find-stars            # write columns to config.txt + open box_overlay.png (--dry-run / --no-open)
 henrietta-slit-guiding overlay               # (re)write outputs/box_overlay.png
 henrietta-slit-guiding path                  # keypress-trail plot
 henrietta-slit-guiding rate                  # commanded-motion histogram

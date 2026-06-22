@@ -17,12 +17,14 @@ from astropy.stats import mad_std, sigma_clip
 from scipy.signal import find_peaks
 
 from . import config as cfgmod
+from . import montage
 from .montage import discover_frames
 
 HW = 21
 
 
-def find_stars(cfg: dict, run_dir: str | None = None, dry_run: bool = False) -> None:
+def find_stars(cfg: dict, run_dir: str | None = None, dry_run: bool = False,
+               no_open: bool = False) -> None:
     boxes = cfg["boxes"]
     target, comp = cfgmod.target_comp(boxes)
     y_lo = boxes[target]["y_lo"]
@@ -87,6 +89,12 @@ def find_stars(cfg: dict, run_dir: str | None = None, dry_run: bool = False) -> 
         for name, action in cfgmod.update_config_boxes(cfg_path, updates):
             print(f"  config.txt: {action} {name} -> x_center={updates[name]['x_center']}")
         print(f"  (backup -> {os.path.basename(cfg_path)}.bak)")
+        # redraw the box overlay from the just-written config and show it, so
+        # the target/comp assignment can be eyeballed on the actual frame.
+        ov = montage.write_box_overlay(run_dir, cfgmod.load_config(cfg_path))
+        if ov and not no_open:
+            cfgmod.open_in_browser(ov)
+            print(f"  opened {os.path.basename(ov)} (verify target vs comp)")
     else:
         print(f"\n(no config.txt at {cfg_path}; nothing written)")
 

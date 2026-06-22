@@ -46,6 +46,28 @@ def template_text() -> str:
     return (resources.files("henrietta_slit_guiding") / "data" / "config_template.txt").read_text()
 
 
+def open_in_browser(path: str) -> bool:
+    """Best-effort: open a file in the OS default app (open / xdg-open).
+    Works for both HTML (browser) and PNG (image viewer).  Never raises;
+    returns True if an opener was launched."""
+    import subprocess
+    import sys
+    if sys.platform == "darwin":
+        opener = "open"
+    elif sys.platform.startswith("linux"):
+        opener = shutil.which("xdg-open")
+    else:
+        opener = None
+    if not opener:
+        return False
+    try:
+        subprocess.Popen([opener, path],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return True
+    except Exception:
+        return False
+
+
 def guiding_root() -> str:
     """Root holding the per-object run dirs ($HENRIETTA_GUIDING_DIR or ~/guiding)."""
     return os.environ.get("HENRIETTA_GUIDING_DIR") or os.path.expanduser("~/guiding")
