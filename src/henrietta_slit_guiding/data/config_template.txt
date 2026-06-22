@@ -1,0 +1,19 @@
+# config.txt — settings for one guided object on one night.
+# `init <target> <comp>` seeds this file with the names; you fill the rest.
+# Edit + save while `watch` runs and it redraws automatically.  A bad/half-
+# saved line is ignored (built-in defaults used) so you can't kill the loop.
+
+source       /path/to/frames     # EDIT: directory holding hen####.fits (spaces ok)
+bpm          bundled             # 'bundled' = the packaged mask, or a path
+start_frame  1                   # EDIT: first frame number of the sequence
+object       OBJECT              # substring that must appear in the OBJECT header
+filter                           # EDIT: required FILTER (e.g. R-J); blank = any
+pa           0.0                 # EDIT: instrument PA in deg (ROTANGLE) — keypress needs it
+pixscale     0.776               # guider arcsec/pix, for the path/rate plots
+
+# Extraction boxes — exactly one 'target' and one 'comp' (names are free).
+#   box  <name>  <role>  <x_center>  <x_halfwidth>  <y_lo>  <y_hi>
+# Set x_center with `find-stars`.  Keep y_lo..y_hi straddling the absorption
+# feature the Y-fit tracks (for the R-J band it sits near detector row ~695).
+box  TARGET  target  100  21  670  852   # EDIT x_center via find-stars
+box  COMP    comp     900  21  670  852   # EDIT x_center via find-stars

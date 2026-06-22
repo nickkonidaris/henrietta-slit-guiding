@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+
+# OS
+.DS_Store
+
+# Runtime data / outputs never belong in the repo (they live in ~/guiding/)
+outputs/
+*.npz
+motion_cache.json

@@ -1,0 +1,86 @@
+# henrietta-slit-guiding
+
+Live slit-guiding analysis for a two-star (target + comparison) spectroscopic
+field on the Henrietta / Swope instrument. It watches frames land, measures
+each trace's cross-dispersion (X) and spectral (Y) drift relative to a
+template, and tells you which TCS arrow keys re-center the star at the night's
+instrument PA.
+
+Install once, run anywhere — no copying code per machine or per night. See
+[`DESIGN.md`](DESIGN.md) for the full design rationale.
+
+## Install (uv)
+
+```sh
+uv tool install git+https://github.com/nickkonidaris/henrietta-slit-guiding
+# later:  uv tool upgrade henrietta-slit-guiding
+```
+(Plain pip works too: `pipx install git+...` or `pip install git+...`.)
+
+The bad-pixel mask ships inside the package — nothing else to fetch.
+
+## Workflow
+
+Each guided object on a night is its own directory under `~/guiding/`,
+holding its `config.txt`, keypress log, and outputs.
+
+```sh
+henrietta-slit-guiding init HD136352 nu01Lup
+#  -> ~/guiding/2026_06_21-HD136352-nu01Lup/   (config.txt seeded with the names)
+
+cd ~/guiding/2026_06_21-HD136352-nu01Lup
+#  edit config.txt: source, start_frame, filter, pa
+henrietta-slit-guiding headers       # confirm OBJECT/FILTER, pick start_frame
+henrietta-slit-guiding find-stars    # prints box columns -> paste into config.txt
+henrietta-slit-guiding watch         # the live loop
+```
+
+Then `open outputs/live.html` (a browser page that auto-refreshes the plot —
+macOS Preview won't reload a background window). Log nudges in
+`motion_events.txt`; the plot redraws on each new frame / events edit / config
+edit. `watch` also prints a status block each redraw:
+
+```
+21:42:10  frames 83..208 (n=126)   new:1 cached:125
+  HD136352     dx -0.08  dy -0.46        nu01Lup      dx +0.01  dy +0.00
+  diff         dx -0.09  dy -0.46   |d|=0.47 px
+  ==> PRESS:  UP 1   LEFT 1
+```
+
+### Other subcommands
+
+```sh
+henrietta-slit-guiding keypress              # drift -> arrow keys (or --dx .. --dy ..)
+henrietta-slit-guiding overlay               # (re)write outputs/box_overlay.png
+henrietta-slit-guiding path                  # keypress-trail plot
+henrietta-slit-guiding rate                  # commanded-motion histogram
+```
+
+All commands act on the `config.txt` in the current directory (or `--dir`).
+The guiding root is `~/guiding` (override with `$HENRIETTA_GUIDING_DIR`).
+
+## config.txt
+
+```
+source       /Volumes/Extreme Pro/HenJune2026   # dir of hen####.fits (spaces ok)
+bpm          bundled                             # packaged mask, or a path
+start_frame  83
+object       136352                              # substring required in OBJECT
+filter       R-J                                 # blank = any
+pa           9.336                               # instrument PA (ROTANGLE) deg
+pixscale     0.776                               # guider arcsec/pix
+# box <name> <role> <x_center> <x_halfwidth> <y_lo> <y_hi>  (one target, one comp)
+box HD136352 target 109  21 670 852
+box nu01Lup  comp    1943 21 670 852
+```
+
+Names are yours; the code keys on the `role`. The R-J absorption feature the
+Y-fit tracks sits near detector row ~695, so keep `y_lo`~640–670. A bad or
+half-saved line is ignored (built-in defaults used) so editing during `watch`
+can't crash the loop.
+
+## Tests
+
+```sh
+python -m pytest            # or: python tests/test_config.py
+```
